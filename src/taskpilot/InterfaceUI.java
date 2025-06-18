@@ -40,6 +40,8 @@ public class InterfaceUI {
         Button adicionarBtn = new Button("Adicionar Tarefa");
         VBox listaTarefasBox = new VBox(5);
 
+        final Tarefa[] tarefaSendoEditada = {null};
+
         // Ação do botão
         adicionarBtn.setOnAction(e -> {
             String nome = nomeField.getText();
@@ -53,18 +55,25 @@ public class InterfaceUI {
                 alert.show();
                 return;
             }
-
-            Tarefa nova = new Tarefa(nome, desc, prioridade, categoria, data);
-            gerenciador.adicionarTarefa(nova);
-
-            Label tarefaLabel = new Label(nova.toString());
-            listaTarefasBox.getChildren().add(tarefaLabel);
+            
+            if (tarefaSendoEditada[0] == null) {
+                Tarefa nova = new Tarefa(nome, desc, prioridade, categoria, data);
+                gerenciador.adicionarTarefa(nova);
+            } else {
+                gerenciador.editarTarefa(tarefaSendoEditada[0], nome, desc, prioridade, categoria, data);
+                tarefaSendoEditada[0] = null;
+                adicionarBtn.setText("Adicionar Tarefa");
+            }
 
             nomeField.clear();
             descricaoField.clear();
             categoriaField.clear();
             dataPicker.setValue(null);
+            prioridadeSpinner.getValueFactory().setValue(5);
+            atualizarListaTarefas(gerenciador, listaTarefasBox, nomeField, descricaoField, categoriaField, prioridadeSpinner, dataPicker, adicionarBtn, tarefaSendoEditada);
         });
+
+        atualizarListaTarefas(gerenciador, listaTarefasBox, nomeField, descricaoField, categoriaField, prioridadeSpinner, dataPicker, adicionarBtn, tarefaSendoEditada);
 
         // Layout do formulário
         VBox form = new VBox(10, nomeField, descricaoField, prioridadeSpinner, categoriaField, dataPicker, adicionarBtn);
@@ -75,4 +84,25 @@ public class InterfaceUI {
         layout.getChildren().addAll(form, new Label("📄 Tarefas adicionadas:"), listaTarefasBox);
         return layout;
     }
+    private static void atualizarListaTarefas(GerenciadorDeTarefas gerenciador, VBox listaTarefasBox, TextField nomeField, TextField descricaoField, TextField categoriaField, Spinner<Integer> prioridadeSpinner, DatePicker dataPicker, Button adicionarBtn, final Tarefa[] tarefaSendoEditada) {
+        listaTarefasBox.getChildren().clear();
+        for (Tarefa t : gerenciador.listarPendentes()) {
+            Label tarefaLabel = new Label(t.toString());
+            Button editarBtn = new Button("Editar");
+            
+            editarBtn.setOnAction(ev -> {
+                nomeField.setText(t.getNome());
+                descricaoField.setText(t.getDescricao());
+                categoriaField.setText(t.getCategoria());
+                prioridadeSpinner.getValueFactory().setValue(t.getPrioridade());
+                dataPicker.setValue(t.getData());
+                
+                tarefaSendoEditada[0] = t;
+                adicionarBtn.setText("Salvar Edição");
+            });
+            HBox linha = new HBox(10, tarefaLabel, editarBtn);
+            listaTarefasBox.getChildren().add(linha);
+        }
+    }
 }
+
