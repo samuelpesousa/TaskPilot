@@ -57,3 +57,15 @@ public class GerenciadorDeTarefas {
         return new LinkedList<>(tarefasUrgentes);
     }
 }
+    public void editarTarefa(Tarefa tarefaOriginal, String novoNome, String novaDescricao, int novaPrioridade, String novaCategoria, LocalDate novaData) {
+    tarefaOriginal.setNome(novoNome);
+    tarefaOriginal.setDescricao(novaDescricao);
+    tarefaOriginal.setPrioridade(novaPrioridade);
+    tarefaOriginal.setCategoria(novaCategoria);
+    tarefaOriginal.setData(novaData);
+}
+    tarefasUrgentes.remove(tarefaOriginal);
+    if (novaPrioridade >= 8) {
+        tarefasUrgentes.add(tarefaOriginal);
+    }
+}
